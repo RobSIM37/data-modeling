@@ -1,0 +1,136 @@
+CREATE TABLE "public.users" (
+	"id" serial NOT NULL,
+	"login" varchar(30) NOT NULL UNIQUE,
+	"email" varchar(30) NOT NULL UNIQUE,
+	"first_name" varchar(30) NOT NULL,
+	"last_name" varchar(30) NOT NULL,
+	"DOB" DATE NOT NULL,
+	CONSTRAINT "users_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.password" (
+	"id" serial NOT NULL,
+	"user_id" bigint NOT NULL UNIQUE,
+	"hash" hstore NOT NULL,
+	CONSTRAINT "password_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.recipes" (
+	"id" serial NOT NULL,
+	"name" varchar(30) NOT NULL,
+	"date_created" DATE(30) NOT NULL,
+	"instructions" TEXT NOT NULL,
+	"public" bool NOT NULL,
+	"author" bigint NOT NULL,
+	CONSTRAINT "recipes_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.ingredients" (
+	"id" serial NOT NULL,
+	"name" varchar(30) NOT NULL UNIQUE,
+	"description" TEXT,
+	CONSTRAINT "ingredients_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.occasions" (
+	"id" bigint NOT NULL,
+	"name" varchar(30) NOT NULL,
+	"date" DATE(30) NOT NULL,
+	"description" TEXT,
+	"repeating" bool NOT NULL,
+	"host" bigint NOT NULL
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.quantities" (
+	"id" serial NOT NULL,
+	"recipes_id" bigint NOT NULL,
+	"ingredients_id" bigint NOT NULL,
+	"amount" float4 NOT NULL,
+	"unit" varchar(10) NOT NULL,
+	CONSTRAINT "quantities_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.recipes-occasions" (
+	"id" serial NOT NULL,
+	"recipe_id" bigint NOT NULL,
+	"occasion_id" bigint NOT NULL,
+	CONSTRAINT "recipes-occasions_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.groceries" (
+	"id" serial NOT NULL,
+	"prepping_id" bigint NOT NULL,
+	"quantity_id" bigint NOT NULL,
+	CONSTRAINT "groceries_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.prepping" (
+	"id" bigint NOT NULL,
+	"user_id" bigint NOT NULL,
+	"recipes" bigint NOT NULL
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+
+ALTER TABLE "password" ADD CONSTRAINT "password_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
+
+ALTER TABLE "recipes" ADD CONSTRAINT "recipes_fk0" FOREIGN KEY ("author") REFERENCES "users"("id");
+
+
+ALTER TABLE "occasions" ADD CONSTRAINT "occasions_fk0" FOREIGN KEY ("host") REFERENCES "users"("id");
+
+ALTER TABLE "quantities" ADD CONSTRAINT "quantities_fk0" FOREIGN KEY ("recipes_id") REFERENCES "recipes"("id");
+ALTER TABLE "quantities" ADD CONSTRAINT "quantities_fk1" FOREIGN KEY ("ingredients_id") REFERENCES "ingredients"("id");
+
+ALTER TABLE "recipes-occasions" ADD CONSTRAINT "recipes-occasions_fk0" FOREIGN KEY ("recipe_id") REFERENCES "recipes"("id");
+ALTER TABLE "recipes-occasions" ADD CONSTRAINT "recipes-occasions_fk1" FOREIGN KEY ("occasion_id") REFERENCES "occasions"("id");
+
+ALTER TABLE "groceries" ADD CONSTRAINT "groceries_fk0" FOREIGN KEY ("prepping_id") REFERENCES "prepping"("id");
+ALTER TABLE "groceries" ADD CONSTRAINT "groceries_fk1" FOREIGN KEY ("quantity_id") REFERENCES "quantities"("id");
+
+ALTER TABLE "prepping" ADD CONSTRAINT "prepping_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
+ALTER TABLE "prepping" ADD CONSTRAINT "prepping_fk1" FOREIGN KEY ("recipes") REFERENCES "recipes"("id");
+
+
+
+
+
+
+
+
+
